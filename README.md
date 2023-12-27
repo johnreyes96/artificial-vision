@@ -10,3 +10,5 @@ run ´pip install lib´ command where "lib" is the library name.
 ### Libs
 - numpy
 - opencv-python
+- matplotlib
+- PIL
