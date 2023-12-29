@@ -12,3 +12,4 @@ run ´pip install lib´ command where "lib" is the library name.
 - opencv-python
 - matplotlib
 - PIL
+- cv2

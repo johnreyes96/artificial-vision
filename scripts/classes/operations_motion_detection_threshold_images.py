@@ -25,13 +25,17 @@ escalar - Matriz
 """
 
 # Se debe conectar con el Drive, y luego buscar la ruta correcta para leer la imagen
-im_A = cv2.imread('/content/drive/MyDrive/vision_artificial/images/sub_A.png', cv2.IMREAD_GRAYSCALE)
-im_B = cv2.imread('/content/drive/MyDrive/vision_artificial/images/sub_B.png', cv2.IMREAD_GRAYSCALE)
+im_A = cv2.imread('../../data/sub_A.png', cv2.IMREAD_GRAYSCALE)
+im_B = cv2.imread('../../data/sub_B.png', cv2.IMREAD_GRAYSCALE)
 
 resta = im_A - im_B
 plotResta = plt.imshow(resta, cmap="gray")
+plt.savefig("../../output/motion_detection.png")
+plt.show()
 
-"""(b.) Muestre que se pueden visibilizar algunos detalles en una imagen de poco brillo, utilizando las operaciones aritméticas suma y multiplicación. Mencione ventajas y desventajas de cada enfoque. Un enfoque más elaborado sería utilizar por ejemplo Ley de la Potencia (Power Law).
+"""(b.) Muestre que se pueden visibilizar algunos detalles en una imagen de poco brillo, utilizando las operaciones 
+aritméticas suma y multiplicación. Mencione ventajas y desventajas de cada enfoque. Un enfoque más elaborado sería 
+utilizar por ejemplo Ley de la Potencia (Power Law).
 
 Desventajas:
 (1.) Ambos enfoques son globales; NO SON ADAPTATIVOS.
@@ -39,26 +43,31 @@ Desventajas:
 (3.) Debe especificarse criterio para seleccionar la constante en ambos enfoques. En caso contrario, dicha selección es arbitraria.
 """
 
-lowBrightnessIm = cv2.imread('/content/drive/MyDrive/vision_artificial/images/D1.jpg', cv2.IMREAD_GRAYSCALE)
+lowBrightnessIm = cv2.imread('../../data/D1.jpg', cv2.IMREAD_GRAYSCALE)
 # lowBrightnessIm = lowBrightnessIm + 64
 lowBrightnessIm = cv2.add(lowBrightnessIm, 64)
 minimo = lowBrightnessIm.min()
 plotLB = plt.imshow(lowBrightnessIm, cmap="gray")
+plt.savefig("../../output/brightness_sum_mult.png")
+plt.show()
 del lowBrightnessIm
 
-"""(c.) Respecto al literal (b.), muestre que los operadores resta y división tienen un efecto contrario a los operadores suma y multiplicación."""
+"""(c.) Respecto al literal (b.), muestre que los operadores resta y división tienen un efecto contrario a los 
+operadores suma y multiplicación."""
 
-highBrightnessIm = cv2.imread('/content/drive/MyDrive/vision_artificial/images/Brighten.jpg', cv2.IMREAD_GRAYSCALE)
+highBrightnessIm = cv2.imread('../../data/Brighten.jpg', cv2.IMREAD_GRAYSCALE)
 scalar = 64
 # highBrightnessIm = highBrightnessIm - 64
 highBrightnessIm = cv2.subtract(highBrightnessIm, scalar)
 plotHB = plt.imshow(highBrightnessIm, cmap="gray")
+plt.savefig("../../output/brightness_subtract_div.png")
+plt.show()
 
 """(d.) Utilice umbralización y operaciones lógicas, para detectar movimiento."""
 
 # Se debe conectar con el Drive, y luego buscar la ruta correcta para leer la imagen
-im_A = cv2.imread('/content/drive/MyDrive/vision_artificial/images/scr3.png', cv2.IMREAD_GRAYSCALE)
-im_B = cv2.imread('/content/drive/MyDrive/vision_artificial/images/scr4.png', cv2.IMREAD_GRAYSCALE)
+im_A = cv2.imread('../../data/scr3.png', cv2.IMREAD_GRAYSCALE)
+im_B = cv2.imread('../../data/scr4.png', cv2.IMREAD_GRAYSCALE)
 
 k = 0.5
 thr = 170
@@ -74,9 +83,10 @@ im_A[im_A <= 0] = 0
 im_A[im_A > 0] = 1
 
 imgplotD = plt.imshow(im_A, cmap="gray")
+plt.savefig("../../output/motion_detection_2.png")
+plt.show()
 # Operadores lógicos: OR, AND, NOT, NAND, XOR, XNOR
 
-"""(e.) Utilice el operador umbral para hallar el valor promedio de los píxeles en la ROI que encierra el craneo en la imagen Brain2.jpg. Compare el resultado con el obtenido en ausencia de umbralización. Para hallar los píxeles que encierran la ROI, considere la función np.where."""
-
-brainIm = cv2.imread('/content/drive/MyDrive/VAI92/Brain2.jpg', cv2.IMREAD_GRAYSCALE)
-brainImPlot  = plt.imshow(brainIm , cmap="gray")
+"""(e.) Utilice el operador umbral para hallar el valor promedio de los píxeles en la ROI que encierra el craneo en 
+la imagen Brain2.jpg. Compare el resultado con el obtenido en ausencia de umbralización. Para hallar los píxeles que 
+encierran la ROI, considere la función np.where."""
