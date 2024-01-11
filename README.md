@@ -15,3 +15,4 @@ run ´pip install lib´ command where "lib" is the library name.
 - cv2
 - google
 - skimage
+- scipy
