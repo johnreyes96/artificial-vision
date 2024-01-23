@@ -13,6 +13,6 @@ run ´pip install lib´ command where "lib" is the library name.
 - matplotlib
 - PIL
 - cv2
-- google
+- google (only Google Colab)
 - skimage
 - scipy
