@@ -241,13 +241,13 @@ img_in = cv2.cvtColor(img_in, cv2.COLOR_BGR2RGB)
 # Contrast method
 def fn_histo_contrast_enhance(input_im, out_min, out_max):
     out_im = 0 * input_im
-    inMin = np.min(input_im)
-    inMax = np.max(input_im)
+    in_min = np.min(input_im)
+    in_max = np.max(input_im)
 
-    m = (out_max - out_min) / (inMax - inMin)
-    pixel_input_val = range(inMin, inMax)
+    m = (out_max - out_min) / (in_max - in_min)
+    pixel_input_val = range(in_min, in_max)
     for pixel_value in pixel_input_val:
-        out_im[input_im == pixel_value] = (m * (pixel_value - inMin)) + out_min
+        out_im[input_im == pixel_value] = (m * (pixel_value - in_min)) + out_min
 
     return out_im
 
@@ -268,34 +268,33 @@ plt.title("Imagen con saturación", fontsize=10)
 """# Contraste"""
 
 # Load image
-imagenEntrada = cv2.imread('/content/drive/MyDrive/vision_artificial/images/HCColor2.jpg',
-                           cv2.IMREAD_GRAYSCALE)  # gray scale
+msg_in = cv2.imread('/content/drive/MyDrive/vision_artificial/images/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
 
 
 # Contrast method
-def fnHistoContrastEnhance(inputIm, outMin, outMax, inc):
-    outIm = 0 * inputIm
-    inMin = np.min(inputIm)
-    inMax = np.max(inputIm)
+def fnHistoContrastEnhance(input_im, out_min, out_max, inc):
+    outIm = 0 * input_im
+    inMin = np.min(input_im)
+    inMax = np.max(input_im)
     pixelInputVal = range(inMin, inMax)
 
-    if inc == True:
-        for pixelValue in pixelInputVal:
-            outIm[inputIm == pixelValue] = ((outMax - outMin) / (inMax - inMin)) * (pixelValue - inMin) + outMin
+    if inc:
+        for pixel_value in pixelInputVal:
+            outIm[input_im == pixel_value] = ((out_max - out_min) / (inMax - inMin)) * (pixel_value - inMin) + out_min
     else:
-        for pixelValue in pixelInputVal:
-            outIm[inputIm == pixelValue] = ((pixelValue - inMin) / (inMax - inMin)) * (outMax - outMin) + outMin
+        for pixel_value in pixelInputVal:
+            outIm[input_im == pixel_value] = ((pixel_value - inMin) / (inMax - inMin)) * (out_max - out_min) + out_min
 
     return outIm
 
 
-imContrastEnhanced = fnHistoContrastEnhance(imagenEntrada, 0, 100, True)
+imContrastEnhanced = fnHistoContrastEnhance(msg_in, 0, 100, True)
 
 # Display images
 fig = plt.figure(dpi=300)
 
 fig.add_subplot(1, 2, 1)
-plt.imshow(imagenEntrada, cmap="gray", vmin=0, vmax=255)
+plt.imshow(msg_in, cmap="gray", vmin=0, vmax=255)
 plt.title("Imagen original", fontsize=10)
 
 fig.add_subplot(1, 2, 2)
@@ -307,50 +306,51 @@ Evalúa numéricamente el contraste de imágenes etiquetadas como de alto o bajo
 """
 
 # Load image
-imagenEntrada = cv2.imread('/content/drive/MyDrive/vision_artificial/images/HCColor2.jpg',
-                           cv2.IMREAD_GRAYSCALE)  # gray scale
+msg_in = cv2.imread('/content/drive/MyDrive/vision_artificial/images/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
 
 
 # Contrast method
-def fnContrast(inputIm, contrastType):
-    lMin = np.min(inputIm)
-    lMax = np.max(inputIm)
+def fn_contrast(input_im, contrast_type):
+    l_min = np.min(input_im)
+    l_max = np.max(input_im)
 
-    if "Luminance" == contrastType:  # Relación entre la luminancia de un área de interés más brillante y la de un área adyacente más oscura
-        contrastF = (lMax - lMin) / (lMin + 1)
-    elif "Simple" == contrastType:
-        contrastF = lMax / (lMin + 1)
-    elif "Michelson" == contrastType:  # Relación entre la dispersión y la suma de las dos luminancias. Esta definición se usa típicamente en la teoría del
-        contrastF = (lMax - lMin) / (
-                    lMax + lMin)  # procesamiento de señales para determinar la calidad de una señal en relación con su nivel de ruido
+    if "Luminance" == contrast_type:  # Relación entre la luminancia de un área de interés más brillante y la de un 
+        # área adyacente más oscura
+        contrast_f = (l_max - l_min) / (l_min + 1)
+    elif "Simple" == contrast_type:
+        contrast_f = l_max / (l_min + 1)
+    elif "Michelson" == contrast_type:  # Relación entre la dispersión y la suma de las dos luminancias. Esta 
+        # definición se usa típicamente en la teoría del
+        contrast_f = (l_max - l_min) / (
+                    l_max + l_min)  # procesamiento de señales para determinar la calidad de una señal en relación con 
+        # su nivel de ruido
     else:
         print("Nombre inválido para métrica de contraste.")
 
-    return contrastF
+    return contrast_f
 
 
-contrastFeat = fnContrast(imagenEntrada, "Michelson")
-print(contrastFeat)
+contrast_feat = fn_contrast(msg_in, "Michelson")
+print(contrast_feat)
 
 """# Gradiante con convolusión 2D con filtro pasa altos"""
 
 # Load image
-imagenEntrada = cv2.imread('/content/drive/MyDrive/vision_artificial/images/HCColor2.jpg',
-                           cv2.IMREAD_GRAYSCALE)  # gray scale
+msg_in = cv2.imread('/content/drive/MyDrive/vision_artificial/images/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
 
 # high pass Filter
 Hx = np.array([[1, 0, -1], [1, 0, -1], [1, 0, -1]])
 Hy = np.array([[1, 1, 1], [0, 0, 0], [-1, -1, -1]])
 # Convolution 2D
-Gx = signal.convolve2d(imagenEntrada, Hx, boundary='symm', mode='same')
-Gy = signal.convolve2d(imagenEntrada, Hy, boundary='symm', mode='same')
+Gx = signal.convolve2d(msg_in, Hx, boundary='symm', mode='same')
+Gy = signal.convolve2d(msg_in, Hy, boundary='symm', mode='same')
 MG = np.sqrt((Gx ** 2) + (Gy ** 2))
 
 # Display images
 fig = plt.figure(dpi=300)
 
 fig.add_subplot(1, 2, 1)
-plt.imshow(imagenEntrada, cmap="gray")
+plt.imshow(msg_in, cmap="gray")
 plt.title("Imagen original", fontsize=10)
 
 fig.add_subplot(1, 2, 2)
@@ -360,58 +360,55 @@ plt.title("Convolusión 2D con filtro pasa altos", fontsize=10)
 """# Aplicación unsharp masking"""
 
 
-def fnUnsharpMasking(R, k, kSize):
-    kernel = (1 / (kSize * kSize)) * np.ones([kSize, kSize])
-    fSmooth = signal.convolve2d(R, kernel, boundary='symm', mode='same')
-    Gx = R - fSmooth
-    fSharp = R + (k * Gx)
-    fSharp.astype(np.uint8)
-    return fSharp
+def fn_unsharp_masking(R, k, k_size):
+    kernel = (1 / (k_size * k_size)) * np.ones([k_size, k_size])
+    f_smooth = signal.convolve2d(R, kernel, boundary='symm', mode='same')
+    Gx = R - f_smooth
+    f_sharp = R + (k * Gx)
+    f_sharp.astype(np.uint8)
+    return f_sharp
 
 
 # Load image
-imagenEntrada = cv2.imread('/content/drive/MyDrive/vision_artificial/images/ratsmoothmuscle2.jpg',
-                           cv2.IMREAD_COLOR)  # color scale
-imagenEntrada = imagenEntrada.astype(np.float64)
+msg_in = cv2.imread('/content/drive/MyDrive/vision_artificial/images/ratsmoothmuscle2.jpg', cv2.IMREAD_COLOR)  # color scale
+msg_in = msg_in.astype(np.float64)
 
-R = imagenEntrada[:, :, 0]
-G = imagenEntrada[:, :, 1]
-B = imagenEntrada[:, :, 2]
+R = msg_in[:, :, 0]
+G = msg_in[:, :, 1]
+B = msg_in[:, :, 2]
 k = 2
-filterSize = 21
-R_UM = fnUnsharpMasking(R, k, filterSize)
-G_UM = fnUnsharpMasking(G, k, filterSize)
-B_UM = fnUnsharpMasking(B, k, filterSize)
+filter_size = 21
+R_UM = fn_unsharp_masking(R, k, filter_size)
+G_UM = fn_unsharp_masking(G, k, filter_size)
+B_UM = fn_unsharp_masking(B, k, filter_size)
 rgb_UM = (np.dstack((R_UM, G_UM, B_UM))).astype(np.float64)
 
 # Display imageS
-mosaic = cv2.hconcat((imagenEntrada, rgb_UM))
-cv2_imshow(mosaic)
+mosaic = cv2.hconcat((msg_in, rgb_UM))
 
 """# Histograma para imagen en escala de grises"""
 
 # Load image
-imagenEntrada = cv2.imread('/content/drive/MyDrive/vision_artificial/images/HCColor2.jpg',
-                           cv2.IMREAD_GRAYSCALE)  # gray scale
+msg_in = cv2.imread('/content/drive/MyDrive/vision_artificial/images/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
 
 
 # Histogram method
-def fnHistograma(inputIm):
-    vHistograma = np.zeros((1, 256))
-    pixelRange = range(0, 256)
+def fn_histogram(input_im):
+    v_histogram = np.zeros((1, 256))
+    pixel_range = range(0, 256)
 
-    for pixelValue in pixelRange:
-        vHistograma[0, pixelValue] = (inputIm == pixelValue).sum()
+    for pixel_value in pixel_range:
+        v_histogram[0, pixel_value] = (input_im == pixel_value).sum()
 
-    return vHistograma
+    return v_histogram
 
 
-histogramaEG = fnHistograma(imagenEntrada)
-histogramaEG = list(histogramaEG.flatten())
-valsPixel = np.arange(256)
+histogram_EG = fn_histogram(msg_in)
+histogram_EG = list(histogram_EG.flatten())
+vals_pixel = np.arange(256)
 
 # Display diagram
-plt.bar(valsPixel, histogramaEG, align='center', width=1)
+plt.bar(vals_pixel, histogram_EG, align='center', width=1)
 plt.ylabel('Valor - píxel')
 plt.ylabel('Frecuencia')
 plt.title('Histograma de imagen en escala de grises')
@@ -420,38 +417,37 @@ plt.show()
 """# Histograma para imagen en escala de colores"""
 
 # Load image
-imagenEntrada = cv2.imread('/content/drive/MyDrive/vision_artificial/images/HCColor2.jpg',
-                           cv2.IMREAD_COLOR)  # color scale
+msg_in = cv2.imread('/content/drive/MyDrive/vision_artificial/images/HCColor2.jpg', cv2.IMREAD_COLOR)  # color scale
 
 
 # Histogram method
-def fnHistograma(inputIm):
-    vHistograma = np.zeros((1, 256))
-    pixelRange = range(0, 256)
+def fn_histogram(input_im):
+    v_histogram = np.zeros((1, 256))
+    pixel_range = range(0, 256)
 
-    for pixelValue in pixelRange:
-        vHistograma[0, pixelValue] = (inputIm == pixelValue).sum()
+    for pixel_value in pixel_range:
+        v_histogram[0, pixel_value] = (input_im == pixel_value).sum()
 
-    return vHistograma
+    return v_histogram
 
 
 # Red
-histogramaRC = fnHistograma(imagenEntrada[:, :, 0])
-histogramaRC = list(histogramaRC.flatten())
+histogramRC = fn_histogram(msg_in[:, :, 0])
+histogramRC = list(histogramRC.flatten())
 # Green
-histogramaGC = fnHistograma(imagenEntrada[:, :, 1])
-histogramaGC = list(histogramaGC.flatten())
+histogramGC = fn_histogram(msg_in[:, :, 1])
+histogramGC = list(histogramGC.flatten())
 # Blue
-histogramaBC = fnHistograma(imagenEntrada[:, :, 2])
-histogramaBC = list(histogramaBC.flatten())
+histogramBC = fn_histogram(msg_in[:, :, 2])
+histogramBC = list(histogramBC.flatten())
 
-valsPixel = np.arange(256)
+vals_pixel = np.arange(256)
 
 # Display diagram
 fig, axs = plt.subplots(1, 3, figsize=(12, 4), sharey=True)
-axs[0].bar(valsPixel, histogramaRC, align='center', width=1)
-axs[1].bar(valsPixel, histogramaGC, align='center', width=1)
-axs[2].bar(valsPixel, histogramaBC, align='center', width=1)
+axs[0].bar(vals_pixel, histogramRC, align='center', width=1)
+axs[1].bar(vals_pixel, histogramGC, align='center', width=1)
+axs[2].bar(vals_pixel, histogramBC, align='center', width=1)
 
 """# Combinar 2 imágenes (Composición)"""
 
@@ -464,7 +460,7 @@ k = 0.5  # Set to combine 2 images
 C = (k * A) + ((1 - k) * B)
 
 # Display image
-imgplotC = plt.imshow(C, cmap="gray")
+imgplot_C = plt.imshow(C, cmap="gray")
 plt.colorbar()
 
 """# Detección de movimiento"""
@@ -473,7 +469,7 @@ plt.colorbar()
 im_A = cv2.imread('/content/drive/MyDrive/vision_artificial/images/sub_A.png', cv2.IMREAD_GRAYSCALE)  # gray scale
 im_B = cv2.imread('/content/drive/MyDrive/vision_artificial/images/sub_B.png', cv2.IMREAD_GRAYSCALE)  # gray scale
 
-resta = im_A - im_B
+remainder = im_A - im_B
 
 # Display images
 fig = plt.figure(dpi=300)
@@ -488,7 +484,7 @@ plt.imshow(im_B, cmap="gray")
 plt.title("Imagen B", fontsize=10)
 
 fig.add_subplot(2, 2, 3)
-plt.imshow(resta, cmap="gray")
+plt.imshow(remainder, cmap="gray")
 plt.title("Detección de movimiento", fontsize=10)
 
 """# Detección de movimiento con umbralización y operaciones lógicas (XOR operador)"""
@@ -534,10 +530,10 @@ Una de las imágenes, concretamente una versión reducida, estará en la esquina
 im1 = Image.open('/content/drive/MyDrive/vision_artificial/images/Cameraman.png')
 im2 = Image.open('/content/drive/MyDrive/vision_artificial/images/Rice.png')
 
-basewidth = 342  # set new size in horizontal to image 2
-wpercent = (basewidth / float(im2.size[0]))
-hsize = int((float(im2.size[1]) * float(wpercent)))
-im2 = im2.resize((basewidth, hsize), Image.ANTIALIAS)  # scale image
+base_width = 342  # set new size in horizontal to image 2
+w_percent = (base_width / float(im2.size[0]))
+h_size = int((float(im2.size[1]) * float(w_percent)))
+im2 = im2.resize((base_width, h_size), Image.ANTIALIAS)  # scale image
 
 width_im1, height_im1 = im1.size
 width_im2, height_im2 = im2.size
@@ -547,50 +543,48 @@ im1.paste(im2, (width_im1 - width_im2, height_im1 - height_im2), im2)  # set im2
 im1.save('/content/drive/MyDrive/vision_artificial/images/Cameraman_Rice.png', quality=95)
 
 # Load image combined
-composition = cv2.imread('/content/drive/MyDrive/vision_artificial/images/Cameraman_Rice.png',
-                         cv2.IMREAD_GRAYSCALE)  # gray scale
+composition = cv2.imread('/content/drive/MyDrive/vision_artificial/images/Cameraman_Rice.png', cv2.IMREAD_GRAYSCALE)  # gray scale
 # Display image
-imgplotGG = plt.imshow(composition, cmap="gray")
+img_plot_GG = plt.imshow(composition, cmap="gray")
 plt.colorbar()
 
 """# Brillo con operaciones aritméticas suma y multiplicación (Subir brillo)"""
 
 # Load image
-imagenEnt = cv2.imread('/content/drive/MyDrive/vision_artificial/images/D1.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
+img_int = cv2.imread('/content/drive/MyDrive/vision_artificial/images/D1.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
 
 scalar = 64  # Set brightness level
-lowBrightnessIm = cv2.add(imagenEnt, scalar)
-minimo = lowBrightnessIm.min()
+low_brightness_im = cv2.add(img_int, scalar)
+minimo = low_brightness_im.min()  # TODO
 
 # Display images
 fig = plt.figure(dpi=300)
 
 fig.add_subplot(1, 2, 1)
-plt.imshow(imagenEnt, cmap="gray")
+plt.imshow(img_int, cmap="gray")
 plt.title("Imagen original", fontsize=10)
 
 fig.add_subplot(1, 2, 2)
-plt.imshow(lowBrightnessIm, cmap="gray")
+plt.imshow(low_brightness_im, cmap="gray")
 plt.title("Imagen con mas brillo", fontsize=10)
 
-"""# Brillo con operaciones aritméticas resta y división (Bajar brillo)"""
+"""# Brillo con operaciones aritméticas remainder y división (Bajar brillo)"""
 
 # Load image
-imagenEnt = cv2.imread('/content/drive/MyDrive/vision_artificial/images/Brighten.jpg',
-                       cv2.IMREAD_GRAYSCALE)  # gray scale
+img_int = cv2.imread('/content/drive/MyDrive/vision_artificial/images/Brighten.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
 
 scalar = 150  # Set brightness level
-highBrightnessIm = cv2.subtract(imagenEnt, scalar)
+high_brightness_im = cv2.subtract(img_int, scalar)
 
 # Display images
 fig = plt.figure(dpi=300)
 
 fig.add_subplot(1, 2, 1)
-plt.imshow(imagenEnt, cmap="gray")
+plt.imshow(img_int, cmap="gray")
 plt.title("Imagen original", fontsize=10)
 
 fig.add_subplot(1, 2, 2)
-plt.imshow(highBrightnessIm, cmap="gray")
+plt.imshow(high_brightness_im, cmap="gray")
 plt.title("Imagen con menos brillo", fontsize=10)
 
 """# Inverso de una imagen (Imágen en negativo)"""
@@ -616,10 +610,10 @@ plt.title("Imagen inverso", fontsize=10)
 # Load image
 A = cv2.imread('/content/drive/MyDrive/vision_artificial/images/Cameraman.png', cv2.IMREAD_GRAYSCALE)  # gray scale
 
-thrIm = np.copy(A)
+thr_im = np.copy(A)
 thr = 127
-thrIm[A <= thr] = 0
-thrIm[A > thr] = 1
+thr_im[A <= thr] = 0
+thr_im[A > thr] = 1
 
 # Display images
 fig = plt.figure(dpi=300)
@@ -629,103 +623,103 @@ plt.imshow(A, cmap="gray")
 plt.title("Imagen original", fontsize=10)
 
 fig.add_subplot(1, 2, 2)
-plt.imshow(thrIm, cmap="gray")
+plt.imshow(thr_im, cmap="gray")
 plt.title("Imagen en blanco y negro", fontsize=10)
 
 """# Cambiar tamaño (escalamiento) de una imagen (Subir tamaño)"""
 
 # Load image
-inputIm = cv2.imread('/content/drive/MyDrive/vision_artificial/images/kodim05.png', cv2.IMREAD_GRAYSCALE)  # gray scale
+input_im = cv2.imread('/content/drive/MyDrive/vision_artificial/images/kodim05.png', cv2.IMREAD_GRAYSCALE)  # gray scale
 
-height, width = inputIm.shape[:2]
-kScalar = 2  # Duplicate X2 image size
-resizedIm = cv2.resize(inputIm, (kScalar * width, kScalar * height), interpolation=cv2.INTER_CUBIC)
+height, width = input_im.shape[:2]
+k_scalar = 2  # Duplicate X2 image size
+resized_im = cv2.resize(input_im, (k_scalar * width, k_scalar * height), interpolation=cv2.INTER_CUBIC)
 
 # Display images
 fig = plt.figure(dpi=300)
 
 fig.add_subplot(1, 2, 1)
-plt.imshow(inputIm, cmap="gray", vmin=0, vmax=255, interpolation='bilinear', aspect='equal')
+plt.imshow(input_im, cmap="gray", vmin=0, vmax=255, interpolation='bilinear', aspect='equal')
 plt.title("Imagen original", fontsize=10)
 
 fig.add_subplot(1, 2, 2)
-plt.imshow(resizedIm, cmap="gray", vmin=0, vmax=255, interpolation='bilinear', aspect='equal')
+plt.imshow(resized_im, cmap="gray", vmin=0, vmax=255, interpolation='bilinear', aspect='equal')
 plt.title("Imagen con tamaño mayor", fontsize=10)
 
 """# Cambiar tamaño (escalamiento) de una imagen (Bajar tamaño)"""
 
 # Load image
-inputIm = cv2.imread('/content/drive/MyDrive/vision_artificial/images/kodim05.png', cv2.IMREAD_GRAYSCALE)  # gray scale
+input_im = cv2.imread('/content/drive/MyDrive/vision_artificial/images/kodim05.png', cv2.IMREAD_GRAYSCALE)  # gray scale
 
-height, width = inputIm.shape[:2]
-kScalar = 0.1  # Set to reduce image
-newRowSize = math.trunc(np.around(kScalar * width))
-newColSize = int(np.around(kScalar * height))
-resizedIm = cv2.resize(inputIm, (newRowSize, newColSize), interpolation=cv2.INTER_AREA)
+height, width = input_im.shape[:2]
+k_scalar = 0.1  # Set to reduce image
+new_row_size = math.trunc(np.around(k_scalar * width))
+new_col_size = int(np.around(k_scalar * height))
+resized_im = cv2.resize(input_im, (new_row_size, new_col_size), interpolation=cv2.INTER_AREA)
 
 # Display images
 fig = plt.figure(dpi=300)
 
 fig.add_subplot(1, 2, 1)
-plt.imshow(inputIm, cmap="gray", vmin=0, vmax=255, interpolation='bilinear', aspect='equal')
+plt.imshow(input_im, cmap="gray", vmin=0, vmax=255, interpolation='bilinear', aspect='equal')
 plt.title("Imagen original", fontsize=10)
 
 fig.add_subplot(1, 2, 2)
-plt.imshow(resizedIm, cmap="gray", vmin=0, vmax=255, interpolation='bilinear', aspect='equal')
+plt.imshow(resized_im, cmap="gray", vmin=0, vmax=255, interpolation='bilinear', aspect='equal')
 plt.title("Imagen con tamaño menor", fontsize=10)
 
 """# Recorte de imagen"""
 
 # Load image
-inputIm = cv2.imread('/content/drive/MyDrive/vision_artificial/images/kodim05.png', cv2.IMREAD_GRAYSCALE)  # gray scale
+input_im = cv2.imread('/content/drive/MyDrive/vision_artificial/images/kodim05.png', cv2.IMREAD_GRAYSCALE)  # gray scale
 
 width = 275  # Set position initial in horizontal
 height = 220  # Set position initial in vertical
 x = 65  # Set pixels to length in horizontal
 y = 70  # Set pixels to length in vertical
 
-crop_img = inputIm[height:height + y, width:width + x]
+crop_img = input_im[height:height + y, width:width + x]
 
 # Up resolution
 height, width = crop_img.shape[:2]
-kScalar = 2  # Set size to up resolution to image
-resizedIm = cv2.resize(crop_img, (kScalar * width, kScalar * height), interpolation=cv2.INTER_CUBIC)
+k_scalar = 2  # Set size to up resolution to image
+resized_im = cv2.resize(crop_img, (k_scalar * width, k_scalar * height), interpolation=cv2.INTER_CUBIC)
 
 # Display images
 fig = plt.figure(dpi=300)
 
 fig.add_subplot(1, 2, 1)
-plt.imshow(inputIm, cmap="gray", vmin=0, vmax=255, interpolation='bilinear', aspect='equal')
+plt.imshow(input_im, cmap="gray", vmin=0, vmax=255, interpolation='bilinear', aspect='equal')
 plt.title("Imagen original", fontsize=10)
 
 fig.add_subplot(1, 2, 2)
-plt.imshow(resizedIm, cmap="gray", vmin=0, vmax=255, interpolation='bilinear', aspect='equal')
+plt.imshow(resized_im, cmap="gray", vmin=0, vmax=255, interpolation='bilinear', aspect='equal')
 plt.title("Recorte", fontsize=10)
 
 """# Desplazamiento geométrico de las coordendas de los píxeles en una imagen"""
 
 # Load image
-inputIm = cv2.imread('/content/drive/MyDrive/vision_artificial/images/kodim05.png', cv2.IMREAD_GRAYSCALE)  # gray scale
+input_im = cv2.imread('/content/drive/MyDrive/vision_artificial/images/kodim05.png', cv2.IMREAD_GRAYSCALE)  # gray scale
 
-rows, cols = inputIm.shape
+rows, cols = input_im.shape
 Tx = 100
 Ty = 50
 M = np.float32([[1, 0, Tx], [0, 1, Ty]])
-xyShiftedIm = cv2.warpAffine(inputIm, M, (cols, rows))
+xy_shifted_im = cv2.warpAffine(input_im, M, (cols, rows))
 
 # Display image
-plotresizeIm = plt.imshow(xyShiftedIm, cmap="gray")
+plot_resize_im = plt.imshow(xy_shifted_im, cmap="gray")
 plt.colorbar()
 
 """# Rotación de una imagen"""
 
 # Load image
-inputIm = cv2.imread('/content/drive/MyDrive/vision_artificial/images/kodim05.png', cv2.IMREAD_GRAYSCALE)  # gray scale
+input_im = cv2.imread('/content/drive/MyDrive/vision_artificial/images/kodim05.png', cv2.IMREAD_GRAYSCALE)  # gray scale
 
-nFilas, nCols = inputIm.shape
-M = cv2.getRotationMatrix2D(((nCols - 1) / 2.0, (nFilas - 1) / 2.0), 45, 1.0)
-rotatedIm = cv2.warpAffine(inputIm, M, (nCols, nFilas))
+n_rows, nCols = input_im.shape
+M = cv2.getRotationMatrix2D(((nCols - 1) / 2.0, (n_rows - 1) / 2.0), 45, 1.0)
+rotated_im = cv2.warpAffine(input_im, M, (nCols, n_rows))
 
 # Display image
-plotresizeIm = plt.imshow(rotatedIm, cmap="gray")
+plot_resize_im = plt.imshow(rotated_im, cmap="gray")
 plt.colorbar()
