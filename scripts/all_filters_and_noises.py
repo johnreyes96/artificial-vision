@@ -19,6 +19,15 @@ def show_menu():
     print("1. Ruido sal y pimienta")
     print("2. Ruido uniforme")
     print("3. Ruido gaussiano")
+    print("4. Procesamiento con filtro promedio (unsharp masking)")
+    print("5. Filtro promedio")
+    print("6. Filtro de mediana")
+    print("7. Filtro Gaussiano")
+    print("8. Filtro pasa bajos de tamaño variable y filtro promedio")
+    print("9. Saturación")
+    print("10. Contraste")
+    print("11. Métrica de contraste")
+    print("12. Gradiente con convolución 2D con filtro pasa altos")
     print("99. Salir")
 
 
@@ -34,6 +43,24 @@ def choose_opt():
             uniform_noise()
         if opt == '3':
             gaussiano_noise()
+        if opt == '4':
+            unsharp_masking()
+        if opt == '5':
+            average_filter()
+        if opt == '6':
+            median_filter()
+        if opt == '7':
+            gaussiano_filter()
+        if opt == '8':
+            variable_size_low_pass_filter_and_average_filter()
+        if opt == '9':
+            saturation()
+        if opt == '10':
+            contrast()
+        if opt == '11':
+            contrast_metric()
+        if opt == '12':
+            gradient_with_2D_convolution_with_high_pass_filter()
         elif opt == '99':
             print("Saliendo del programa.")
             break
@@ -116,7 +143,7 @@ def gaussiano_noise():
     gauss_noise = np.zeros((nf, nc), dtype=np.float64)
     cv2.randn(gauss_noise, 50, 10)
     gauss_noise.astype(np.float64)
-    noise_image = cv2.add(img_in, gauss_noise)
+    cv2.add(img_in, gauss_noise)
     gauss_noiseHist = gauss_noise
     gauss_noiseHist = gauss_noiseHist.astype(np.uint8)
 
@@ -154,133 +181,147 @@ def gaussiano_noise():
     plt.show()
 
 
-if __name__ == '__main__':
-    choose_opt()
+def unsharp_masking():
+    """# Procesamiento con filtro promedio (unsharp masking)"""
+
+    # Load image
+    img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
+    nf, nc = img_in.shape
+    Fx = img_in.astype(np.float64)
+
+    k_size = 21
+    k = 5
+    kernel = (1 / (k_size * k_size)) * np.ones([k_size, k_size])
+    f_smooth = signal.convolve2d(Fx, kernel, boundary='symm', mode='same')
+    Gx = Fx - f_smooth
+    f_sharp = Fx + (k * Gx)
+    f_sharp.astype(np.uint8)
+
+    # Display images
+    fig = plt.figure(dpi=300)
+
+    fig.add_subplot(1, 2, 1)
+    plt.imshow(Fx, cmap="gray", vmin=0, vmax=255)
+    plt.title("Imagen original", fontsize=10)
+
+    fig.add_subplot(1, 2, 2)
+    plt.imshow(f_sharp, cmap="gray", vmin=0, vmax=255)
+    plt.title("Con procesamiento de filtro promedio", fontsize=10)
+
+    plt.savefig("../output/HCColor2_unsharp_masking_filter_comparative.png")
+    plt.show()
 
 
-"""# Procesamiento con filtro promedio (unsharp masking)"""
+def average_filter():
+    """# Filtro promedio"""
 
-# Load image
-img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
-nf, nc = img_in.shape
-Fx = img_in.astype(np.float64)
+    # Load image
+    img_in = cv2.imread('../data/GaussianBlur.png', cv2.IMREAD_GRAYSCALE)  # gray scale
+    nf, nc = img_in.shape
+    img_in = img_in.astype(np.float64)
 
-k_size = 21
-k = 5
-kernel = (1 / (k_size * k_size)) * np.ones([k_size, k_size])
-f_smooth = signal.convolve2d(Fx, kernel, boundary='symm', mode='same')
-Gx = Fx - f_smooth
-f_sharp = Fx + (k * Gx)
-f_sharp.astype(np.uint8)
+    gauss_noise = np.zeros((nf, nc), dtype=np.float64)
+    cv2.randn(gauss_noise, 50, 10)
+    gauss_noise.astype(np.float64)
+    k_size = 21
+    kernel = (1 / (k_size * k_size)) * np.ones([k_size, k_size])
+    noise_img = cv2.add(img_in, gauss_noise)
+    lpf_avg = signal.convolve2d(noise_img, kernel, boundary='symm', mode='same')
 
-# Display images
-fig = plt.figure(dpi=300)
+    # Display images
+    fig = plt.figure(dpi=300)
 
-fig.add_subplot(1, 2, 1)
-plt.imshow(Fx, cmap="gray", vmin=0, vmax=255)
-plt.title("Imagen original", fontsize=10)
+    fig.add_subplot(1, 2, 1)
+    plt.imshow(noise_img, cmap="gray", vmin=0, vmax=255)
+    plt.title("Original con ruido gaussiano", fontsize=10)
 
-fig.add_subplot(1, 2, 2)
-plt.imshow(f_sharp, cmap="gray", vmin=0, vmax=255)
-plt.title("Con procesamiento de filtro promedio", fontsize=10)
+    fig.add_subplot(1, 2, 2)
+    plt.imshow(lpf_avg, cmap="gray", vmin=0, vmax=255)
+    plt.title("Con procesamiento de filtro promedio", fontsize=10)
 
-"""# Filtro promedio"""
+    plt.savefig("../output/HCColor1_average_filter_comparative.png")
+    plt.show()
 
-# Load image
-img_in = cv2.imread('../data/HCColor1.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
-nf, nc = img_in.shape
-img_in = img_in.astype(np.float64)
 
-gauss_noise = np.zeros((nf, nc), dtype=np.float64)
-cv2.randn(gauss_noise, 50, 10)
-gauss_noise.astype(np.float64)
-k_size = 21
-kernel = (1 / (k_size * k_size)) * np.ones([k_size, k_size])
-noise_img = cv2.add(img_in, gauss_noise)
-lpf_avg = signal.convolve2d(noise_img, kernel, boundary='symm', mode='same')
+def median_filter():
+    """# Filtro de mediana"""
 
-# Display images
-fig = plt.figure(dpi=300)
+    # Load image
+    img = cv2.imread("../data/HCColor2.jpg", cv2.IMREAD_GRAYSCALE)  # gray scale
 
-fig.add_subplot(1, 2, 1)
-plt.imshow(noise_img, cmap="gray", vmin=0, vmax=255)
-plt.title("Original con ruido gaussiano", fontsize=10)
+    k_size = 21
+    noise_img = random_noise(img, mode='s&p', amount=0.3)
+    noise_img = np.array(255 * noise_img, dtype='uint8')
+    lpf_mediana = cv2.medianBlur(noise_img, k_size)
 
-fig.add_subplot(1, 2, 2)
-plt.imshow(lpf_avg, cmap="gray", vmin=0, vmax=255)
-plt.title("Con procesamiento de filtro promedio", fontsize=10)
+    # Display images
+    fig = plt.figure(dpi=300)
 
-"""# Filtro de mediana"""
+    fig.add_subplot(1, 2, 1)
+    plt.imshow(img, cmap="gray", vmin=0, vmax=255)
+    plt.title("Imagen original", fontsize=10)
 
-# Load image
-img = cv2.imread("../data/HCColor2.jpg", cv2.IMREAD_GRAYSCALE)  # gray scale
+    fig.add_subplot(1, 2, 2)
+    plt.imshow(lpf_mediana, cmap="gray", vmin=0, vmax=255)
+    plt.title("Mediana", fontsize=10)
 
-k_size = 21
-noise_img = random_noise(img, mode='s&p', amount=0.3)
-noise_img = np.array(255 * noise_img, dtype='uint8')
-lpf_mediana = cv2.medianBlur(noise_img, k_size)
+    plt.savefig("../output/HCColor2_median_filter_comparative.png")
+    plt.show()
 
-# Display images
-fig = plt.figure(dpi=300)
 
-fig.add_subplot(1, 2, 1)
-plt.imshow(img, cmap="gray", vmin=0, vmax=255)
-plt.title("Imagen original", fontsize=10)
+def gaussiano_filter():
+    """# Filtro Gaussiano"""
 
-fig.add_subplot(1, 2, 2)
-plt.imshow(lpf_mediana, cmap="gray", vmin=0, vmax=255)
-plt.title("Mediana", fontsize=10)
+    # Load image
+    img_in = cv2.imread('../data/HCColor1.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
+    nf, nc = img_in.shape
+    img_in = img_in.astype(np.float64)
 
-"""# Filtro Gaussiano"""
+    gauss_noise = np.zeros((nf, nc), dtype=np.float64)
+    cv2.randn(gauss_noise, 50, 10)
+    gauss_noise.astype(np.float64)
+    noise_img = cv2.add(img_in, gauss_noise)
+    k_size = 21
+    lpf_gaussiano = cv2.GaussianBlur(noise_img, (k_size, k_size), 0)
 
-# Load image
-img_in = cv2.imread('../data/HCColor1.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
-nf, nc = img_in.shape
-img_in = img_in.astype(np.float64)
+    # Display images
+    fig = plt.figure(dpi=300)
 
-gauss_noise = np.zeros((nf, nc), dtype=np.float64)
-cv2.randn(gauss_noise, 50, 10)
-gauss_noise.astype(np.float64)
-noise_img = cv2.add(img_in, gauss_noise)
-k_size = 21
-lpf_gaussiano = cv2.GaussianBlur(noise_img, (k_size, k_size), 0)
+    fig.add_subplot(1, 2, 1)
+    plt.imshow(noise_img, cmap="gray", vmin=0, vmax=255)
+    plt.title("Original con ruido gaussiano", fontsize=10)
 
-# Display images
-fig = plt.figure(dpi=300)
+    fig.add_subplot(1, 2, 2)
+    plt.imshow(lpf_gaussiano, cmap="gray", vmin=0, vmax=255)
+    plt.title("Con procesamiento de filtro gaussiano", fontsize=10)
 
-fig.add_subplot(1, 2, 1)
-plt.imshow(noise_img, cmap="gray", vmin=0, vmax=255)
-plt.title("Original con ruido gaussiano", fontsize=10)
+    plt.savefig("../output/HCColor1_gaussiano_filter_comparative.png")
+    plt.show()
 
-fig.add_subplot(1, 2, 2)
-plt.imshow(lpf_gaussiano, cmap="gray", vmin=0, vmax=255)
-plt.title("Con procesamiento de filtro gaussiano", fontsize=10)
 
-"""# Filtro pasa bajos de tamaño variable y filtro promedio"""
+def variable_size_low_pass_filter_and_average_filter():
+    """# Filtro pasa bajos de tamaño variable y filtro promedio"""
 
-# Load image
-img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
+    # Load image
+    img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
 
-n = 9
-kernel = (1 / (n * n)) * np.ones([n, n])
-filt_im = signal.convolve2d(img_in, kernel, boundary='symm', mode='same')
+    n = 9
+    kernel = (1 / (n * n)) * np.ones([n, n])
+    filt_im = signal.convolve2d(img_in, kernel, boundary='symm', mode='same')
 
-# Display images
-fig = plt.figure(dpi=300)
+    # Display images
+    fig = plt.figure(dpi=300)
 
-fig.add_subplot(1, 2, 1)
-plt.imshow(img_in, cmap="gray", vmin=0, vmax=255)
-plt.title("Imagen original", fontsize=10)
+    fig.add_subplot(1, 2, 1)
+    plt.imshow(img_in, cmap="gray", vmin=0, vmax=255)
+    plt.title("Imagen original", fontsize=10)
 
-fig.add_subplot(1, 2, 2)
-plt.imshow(filt_im, cmap="gray", vmin=0, vmax=255)
-plt.title("Filtro pasa bajos y filtro promedio", fontsize=10)
+    fig.add_subplot(1, 2, 2)
+    plt.imshow(filt_im, cmap="gray", vmin=0, vmax=255)
+    plt.title("Filtro pasa bajos y filtro promedio", fontsize=10)
 
-"""# Saturación"""
-
-# Load image
-img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_COLOR)  # color scale
-img_in = cv2.cvtColor(img_in, cv2.COLOR_BGR2RGB)
+    plt.savefig("../output/HCColor2_variable_size_low_pass_filter_and_average_filter_comparative.png")
+    plt.show()
 
 
 # Contrast method
@@ -297,23 +338,28 @@ def fn_histo_contrast_enhance(input_im, out_min, out_max):
     return out_im
 
 
-im_contrast_enhanced = fn_histo_contrast_enhance(img_in, 0, 255)
+def saturation():
+    """# Saturación"""
 
-# Display images
-fig = plt.figure(dpi=300)
+    # Load image
+    img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_COLOR)  # color scale
+    img_in = cv2.cvtColor(img_in, cv2.COLOR_BGR2RGB)
 
-fig.add_subplot(1, 2, 1)
-plt.imshow(img_in, cmap="gray", vmin=0, vmax=255)
-plt.title("Imagen original", fontsize=10)
+    im_contrast_enhanced = fn_histo_contrast_enhance(img_in, 0, 255)
 
-fig.add_subplot(1, 2, 2)
-plt.imshow(im_contrast_enhanced, cmap="gray", vmin=0, vmax=255)
-plt.title("Imagen con saturación", fontsize=10)
+    # Display images
+    fig = plt.figure(dpi=300)
 
-"""# Contraste"""
+    fig.add_subplot(1, 2, 1)
+    plt.imshow(img_in, cmap="gray", vmin=0, vmax=255)
+    plt.title("Imagen original", fontsize=10)
 
-# Load image
-msg_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
+    fig.add_subplot(1, 2, 2)
+    plt.imshow(im_contrast_enhanced, cmap="gray", vmin=0, vmax=255)
+    plt.title("Imagen con saturación", fontsize=10)
+
+    plt.savefig("../output/HCColor2_saturation_comparative.png")
+    plt.show()
 
 
 # Contrast method
@@ -329,29 +375,30 @@ def fnHistoContrastEnhance(input_im, out_min, out_max, inc):
     else:
         for pixel_value in pixelInputVal:
             outIm[input_im == pixel_value] = ((pixel_value - inMin) / (inMax - inMin)) * (out_max - out_min) + out_min
-
     return outIm
 
 
-imContrastEnhanced = fnHistoContrastEnhance(msg_in, 0, 100, True)
+def contrast():
+    """# Contraste"""
 
-# Display images
-fig = plt.figure(dpi=300)
+    # Load image
+    msg_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
 
-fig.add_subplot(1, 2, 1)
-plt.imshow(msg_in, cmap="gray", vmin=0, vmax=255)
-plt.title("Imagen original", fontsize=10)
+    imContrastEnhanced = fnHistoContrastEnhance(msg_in, 0, 100, True)
 
-fig.add_subplot(1, 2, 2)
-plt.imshow(imContrastEnhanced, cmap="gray", vmin=0, vmax=255)
-plt.title("Imagen con contraste", fontsize=10)
+    # Display images
+    fig = plt.figure(dpi=300)
 
-"""# Métrica de contraste
-Evalúa numéricamente el contraste de imágenes etiquetadas como de alto o bajo contraste
-"""
+    fig.add_subplot(1, 2, 1)
+    plt.imshow(msg_in, cmap="gray", vmin=0, vmax=255)
+    plt.title("Imagen original", fontsize=10)
 
-# Load image
-msg_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
+    fig.add_subplot(1, 2, 2)
+    plt.imshow(imContrastEnhanced, cmap="gray", vmin=0, vmax=255)
+    plt.title("Imagen con contraste", fontsize=10)
+
+    plt.savefig("../output/HCColor2_contrast_comparative.png")
+    plt.show()
 
 
 # Contrast method
@@ -359,15 +406,15 @@ def fn_contrast(input_im, contrast_type):
     l_min = np.min(input_im)
     l_max = np.max(input_im)
 
-    if "Luminance" == contrast_type:  # Relación entre la luminancia de un área de interés más brillante y la de un 
+    if "Luminance" == contrast_type:  # Relación entre la luminancia de un área de interés más brillante y la de un
         # área adyacente más oscura
         contrast_f = (l_max - l_min) / (l_min + 1)
     elif "Simple" == contrast_type:
         contrast_f = l_max / (l_min + 1)
-    elif "Michelson" == contrast_type:  # Relación entre la dispersión y la suma de las dos luminancias. Esta 
+    elif "Michelson" == contrast_type:  # Relación entre la dispersión y la suma de las dos luminancias. Esta
         # definición se usa típicamente en la teoría del
         contrast_f = (l_max - l_min) / (
-                    l_max + l_min)  # procesamiento de señales para determinar la calidad de una señal en relación con 
+                    l_max + l_min)  # procesamiento de señales para determinar la calidad de una señal en relación con
         # su nivel de ruido
     else:
         print("Nombre inválido para métrica de contraste.")
@@ -375,32 +422,49 @@ def fn_contrast(input_im, contrast_type):
     return contrast_f
 
 
-contrast_feat = fn_contrast(msg_in, "Michelson")
-print(contrast_feat)
+def contrast_metric():
+    """# Métrica de contraste
+    Evalúa numéricamente el contraste de imágenes etiquetadas como de alto o bajo contraste"""
 
-"""# Gradiante con convolusión 2D con filtro pasa altos"""
+    # Load image
+    msg_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
 
-# Load image
-msg_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
+    contrast_feat = fn_contrast(msg_in, "Michelson")
+    print(contrast_feat)
 
-# high pass Filter
-Hx = np.array([[1, 0, -1], [1, 0, -1], [1, 0, -1]])
-Hy = np.array([[1, 1, 1], [0, 0, 0], [-1, -1, -1]])
-# Convolution 2D
-Gx = signal.convolve2d(msg_in, Hx, boundary='symm', mode='same')
-Gy = signal.convolve2d(msg_in, Hy, boundary='symm', mode='same')
-MG = np.sqrt((Gx ** 2) + (Gy ** 2))
 
-# Display images
-fig = plt.figure(dpi=300)
+def gradient_with_2D_convolution_with_high_pass_filter():
+    """# Gradiente con convolución 2D con filtro pasa altos"""
 
-fig.add_subplot(1, 2, 1)
-plt.imshow(msg_in, cmap="gray")
-plt.title("Imagen original", fontsize=10)
+    # Load image
+    msg_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
 
-fig.add_subplot(1, 2, 2)
-plt.imshow(MG, cmap="gray")
-plt.title("Convolusión 2D con filtro pasa altos", fontsize=10)
+    # high pass Filter
+    Hx = np.array([[1, 0, -1], [1, 0, -1], [1, 0, -1]])
+    Hy = np.array([[1, 1, 1], [0, 0, 0], [-1, -1, -1]])
+    # Convolution 2D
+    Gx = signal.convolve2d(msg_in, Hx, boundary='symm', mode='same')
+    Gy = signal.convolve2d(msg_in, Hy, boundary='symm', mode='same')
+    MG = np.sqrt((Gx ** 2) + (Gy ** 2))
+
+    # Display images
+    fig = plt.figure(dpi=300)
+
+    fig.add_subplot(1, 2, 1)
+    plt.imshow(msg_in, cmap="gray")
+    plt.title("Imagen original", fontsize=10)
+
+    fig.add_subplot(1, 2, 2)
+    plt.imshow(MG, cmap="gray")
+    plt.title("Convolución 2D con filtro pasa altos", fontsize=10)
+
+    plt.savefig("../output/HCColor2_gradient_with_2D_convolution_with_high_pass_filter_comparative.png")
+    plt.show()
+
+
+if __name__ == '__main__':
+    choose_opt()
+
 
 """# Aplicación unsharp masking"""
 
