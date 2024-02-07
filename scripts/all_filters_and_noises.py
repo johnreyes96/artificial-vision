@@ -28,6 +28,7 @@ def show_menu():
     print("10. Contraste")
     print("11. Métrica de contraste")
     print("12. Gradiente con convolución 2D con filtro pasa altos")
+    print("13. Aplicación unsharp masking")
     print("99. Salir")
 
 
@@ -61,6 +62,8 @@ def choose_opt():
             contrast_metric()
         if opt == '12':
             gradient_with_2D_convolution_with_high_pass_filter()
+        if opt == '13':
+            application_unsharp_masking()
         elif opt == '99':
             print("Saliendo del programa.")
             break
@@ -382,15 +385,15 @@ def contrast():
     """# Contraste"""
 
     # Load image
-    msg_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
+    img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
 
-    imContrastEnhanced = fnHistoContrastEnhance(msg_in, 0, 100, True)
+    imContrastEnhanced = fnHistoContrastEnhance(img_in, 0, 100, True)
 
     # Display images
     fig = plt.figure(dpi=300)
 
     fig.add_subplot(1, 2, 1)
-    plt.imshow(msg_in, cmap="gray", vmin=0, vmax=255)
+    plt.imshow(img_in, cmap="gray", vmin=0, vmax=255)
     plt.title("Imagen original", fontsize=10)
 
     fig.add_subplot(1, 2, 2)
@@ -413,9 +416,8 @@ def fn_contrast(input_im, contrast_type):
         contrast_f = l_max / (l_min + 1)
     elif "Michelson" == contrast_type:  # Relación entre la dispersión y la suma de las dos luminancias. Esta
         # definición se usa típicamente en la teoría del
-        contrast_f = (l_max - l_min) / (
-                    l_max + l_min)  # procesamiento de señales para determinar la calidad de una señal en relación con
-        # su nivel de ruido
+        contrast_f = (l_max - l_min) / (l_max + l_min)  # procesamiento de señales para determinar la calidad de una
+        # señal en relación con su nivel de ruido
     else:
         print("Nombre inválido para métrica de contraste.")
 
@@ -427,9 +429,9 @@ def contrast_metric():
     Evalúa numéricamente el contraste de imágenes etiquetadas como de alto o bajo contraste"""
 
     # Load image
-    msg_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
+    img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
 
-    contrast_feat = fn_contrast(msg_in, "Michelson")
+    contrast_feat = fn_contrast(img_in, "Michelson")
     print(contrast_feat)
 
 
@@ -437,21 +439,21 @@ def gradient_with_2D_convolution_with_high_pass_filter():
     """# Gradiente con convolución 2D con filtro pasa altos"""
 
     # Load image
-    msg_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
+    img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
 
     # high pass Filter
     Hx = np.array([[1, 0, -1], [1, 0, -1], [1, 0, -1]])
     Hy = np.array([[1, 1, 1], [0, 0, 0], [-1, -1, -1]])
     # Convolution 2D
-    Gx = signal.convolve2d(msg_in, Hx, boundary='symm', mode='same')
-    Gy = signal.convolve2d(msg_in, Hy, boundary='symm', mode='same')
+    Gx = signal.convolve2d(img_in, Hx, boundary='symm', mode='same')
+    Gy = signal.convolve2d(img_in, Hy, boundary='symm', mode='same')
     MG = np.sqrt((Gx ** 2) + (Gy ** 2))
 
     # Display images
     fig = plt.figure(dpi=300)
 
     fig.add_subplot(1, 2, 1)
-    plt.imshow(msg_in, cmap="gray")
+    plt.imshow(img_in, cmap="gray")
     plt.title("Imagen original", fontsize=10)
 
     fig.add_subplot(1, 2, 2)
@@ -460,13 +462,6 @@ def gradient_with_2D_convolution_with_high_pass_filter():
 
     plt.savefig("../output/HCColor2_gradient_with_2D_convolution_with_high_pass_filter_comparative.png")
     plt.show()
-
-
-if __name__ == '__main__':
-    choose_opt()
-
-
-"""# Aplicación unsharp masking"""
 
 
 def fn_unsharp_masking(R, k, k_size):
@@ -478,27 +473,38 @@ def fn_unsharp_masking(R, k, k_size):
     return f_sharp
 
 
-# Load image
-msg_in = cv2.imread('../data/ratsmoothmuscle2.jpg', cv2.IMREAD_COLOR)  # color scale
-msg_in = msg_in.astype(np.float64)
+def application_unsharp_masking():
+    """# Aplicación unsharp masking"""
 
-R = msg_in[:, :, 0]
-G = msg_in[:, :, 1]
-B = msg_in[:, :, 2]
-k = 2
-filter_size = 21
-R_UM = fn_unsharp_masking(R, k, filter_size)
-G_UM = fn_unsharp_masking(G, k, filter_size)
-B_UM = fn_unsharp_masking(B, k, filter_size)
-rgb_UM = (np.dstack((R_UM, G_UM, B_UM))).astype(np.float64)
+    # Load image
+    img_in = cv2.imread('../data/ratsmoothmuscle2.jpg', cv2.IMREAD_COLOR)  # color scale
+    img_in = cv2.cvtColor(img_in, cv2.COLOR_BGR2RGB)
+    img_in = img_in.astype(np.float64)
 
-# Display imageS
-mosaic = cv2.hconcat((msg_in, rgb_UM))
+    R = img_in[:, :, 0]
+    G = img_in[:, :, 1]
+    B = img_in[:, :, 2]
+    k = 2
+    filter_size = 21
+    R_UM = fn_unsharp_masking(R, k, filter_size)
+    G_UM = fn_unsharp_masking(G, k, filter_size)
+    B_UM = fn_unsharp_masking(B, k, filter_size)
+    rgb_UM = (np.dstack((R_UM, G_UM, B_UM))).astype(np.float64)
+
+    mosaic = cv2.hconcat((img_in, rgb_UM))
+    plt.imshow(mosaic, cmap="gray", vmin=0, vmax=255)
+
+    plt.savefig("../output/ratsmoothmuscle2_application_unsharp_masking_comparative.png")
+    plt.show()
+
+
+if __name__ == '__main__':
+    choose_opt()
 
 """# Histograma para imagen en escala de grises"""
 
 # Load image
-msg_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
+img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
 
 
 # Histogram method
@@ -512,7 +518,7 @@ def fn_histogram(input_im):
     return v_histogram
 
 
-histogram_EG = fn_histogram(msg_in)
+histogram_EG = fn_histogram(img_in)
 histogram_EG = list(histogram_EG.flatten())
 vals_pixel = np.arange(256)
 
@@ -526,7 +532,7 @@ plt.show()
 """# Histograma para imagen en escala de colores"""
 
 # Load image
-msg_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_COLOR)  # color scale
+img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_COLOR)  # color scale
 
 
 # Histogram method
@@ -541,13 +547,13 @@ def fn_histogram(input_im):
 
 
 # Red
-histogramRC = fn_histogram(msg_in[:, :, 0])
+histogramRC = fn_histogram(img_in[:, :, 0])
 histogramRC = list(histogramRC.flatten())
 # Green
-histogramGC = fn_histogram(msg_in[:, :, 1])
+histogramGC = fn_histogram(img_in[:, :, 1])
 histogramGC = list(histogramGC.flatten())
 # Blue
-histogramBC = fn_histogram(msg_in[:, :, 2])
+histogramBC = fn_histogram(img_in[:, :, 2])
 histogramBC = list(histogramBC.flatten())
 
 vals_pixel = np.arange(256)
