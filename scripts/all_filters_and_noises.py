@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from skimage.util import random_noise
 from scipy import signal
 from PIL import Image
+from PIL.Image import Resampling
 
 
 def show_menu():
@@ -29,6 +30,13 @@ def show_menu():
     print("11. Métrica de contraste")
     print("12. Gradiente con convolución 2D con filtro pasa altos")
     print("13. Aplicación unsharp masking")
+    print("14. Histograma para imagen en escala de grises")
+    print("15. Histograma para imagen en escala de colores")
+    print("16. Composición completa entre 2 imágenes")
+    print("17. Detectión de movimiento")
+    print("18. Detección de movimiento con umbralización y operaciones lógicas")
+    print("19. Composición parcial entre 2 imágenes")
+    print("20. Subir brillo")
     print("99. Salir")
 
 
@@ -64,6 +72,20 @@ def choose_opt():
             gradient_with_2D_convolution_with_high_pass_filter()
         if opt == '13':
             application_unsharp_masking()
+        if opt == '14':
+            histogram_image_gray_scale()
+        if opt == '15':
+            histogram_image_color_scale()
+        if opt == '16':
+            composition()
+        if opt == '17':
+            motion_detection()
+        if opt == '18':
+            motion_detection_thresholding_and_logical_operations()
+        if opt == '19':
+            composition_partial()
+        if opt == '20':
+            increase_brightness()
         elif opt == '99':
             print("Saliendo del programa.")
             break
@@ -121,7 +143,6 @@ def uniform_noise():
     plt.show()
 
 
-# Histogram
 def fn_histogram(input_im):
     v_histogram = np.zeros((1, 256))
     pixel_range = range(0, 255)
@@ -473,13 +494,15 @@ def fn_unsharp_masking(R, k, k_size):
     return f_sharp
 
 
-def application_unsharp_masking():
+def application_unsharp_masking():  #  TODO: adjust visualization images
     """# Aplicación unsharp masking"""
 
     # Load image
     img_in = cv2.imread('../data/ratsmoothmuscle2.jpg', cv2.IMREAD_COLOR)  # color scale
     img_in = cv2.cvtColor(img_in, cv2.COLOR_BGR2RGB)
     img_in = img_in.astype(np.float64)
+    plt.imshow(img_in, cmap="gray", vmin=0, vmax=255)
+    plt.show()
 
     R = img_in[:, :, 0]
     G = img_in[:, :, 1]
@@ -492,196 +515,212 @@ def application_unsharp_masking():
     rgb_UM = (np.dstack((R_UM, G_UM, B_UM))).astype(np.float64)
 
     mosaic = cv2.hconcat((img_in, rgb_UM))
-    plt.imshow(mosaic, cmap="gray", vmin=0, vmax=255)
+    plt.imshow(mosaic.astype(np.uint8), cmap="gray", vmin=0, vmax=255)
 
-    plt.savefig("../output/ratsmoothmuscle2_application_unsharp_masking_comparative.png")
+    plt.savefig("../output/ratsmoothmuscle2_application_unsharp_masking_comparative2.png")
+    plt.show()
+
+
+# Histogram method
+def get_histogram(input_im):
+    v_histogram = np.zeros((1, 256))
+    pixel_range = range(0, 256)
+
+    for pixel_value in pixel_range:
+        v_histogram[0, pixel_value] = (input_im == pixel_value).sum()
+
+    return v_histogram
+
+
+def histogram_image_gray_scale():
+    """# Histograma para imagen en escala de grises"""
+
+    # Load image
+    img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
+
+    histogram_EG = get_histogram(img_in)
+    histogram_EG = list(histogram_EG.flatten())
+    vals_pixel = np.arange(256)
+
+    # Display diagram
+    plt.bar(vals_pixel, histogram_EG, align='center', width=1)
+    plt.ylabel('Valor - píxel')
+    plt.ylabel('Frecuencia')
+    plt.title('Histograma de imagen en escala de grises')
+    plt.show()
+
+
+def histogram_image_color_scale():
+    """# Histograma para imagen en escala de colores"""
+
+    # Load image
+    img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_COLOR)  # color scale
+
+    # Red
+    histogramRC = get_histogram(img_in[:, :, 0])
+    histogramRC = list(histogramRC.flatten())
+    # Green
+    histogramGC = get_histogram(img_in[:, :, 1])
+    histogramGC = list(histogramGC.flatten())
+    # Blue
+    histogramBC = get_histogram(img_in[:, :, 2])
+    histogramBC = list(histogramBC.flatten())
+
+    vals_pixel = np.arange(256)
+
+    # Display diagram
+    fig, axs = plt.subplots(1, 3, figsize=(12, 4), sharey=True)
+    axs[0].bar(vals_pixel, histogramRC, align='center', width=1)
+    axs[1].bar(vals_pixel, histogramGC, align='center', width=1)
+    axs[2].bar(vals_pixel, histogramBC, align='center', width=1)
+    plt.show()
+
+
+def composition():
+    """# Combinar 2 imágenes (Composición)"""
+
+    # Load images
+    A = cv2.imread('../data/Cameraman.png', cv2.IMREAD_GRAYSCALE)  # gray scale
+    B = cv2.imread('../data/Rice.png', cv2.IMREAD_GRAYSCALE)  # gray scale
+
+    A = A[0:1024, 0:1022]
+    k = 0.5  # Set to combine 2 images
+    C = (k * A) + ((1 - k) * B)
+
+    # Display image
+    plt.imshow(C, cmap="gray")
+    plt.colorbar()
+
+    plt.savefig("../output/Cameraman_Rice_composition_full_comparative.png")
+    plt.show()
+
+
+def motion_detection():
+    """# Detección de movimiento"""
+
+    # Load images
+    im_A = cv2.imread('../data/sub_A.png', cv2.IMREAD_GRAYSCALE)  # gray scale
+    im_B = cv2.imread('../data/sub_B.png', cv2.IMREAD_GRAYSCALE)  # gray scale
+
+    remainder = im_A - im_B
+
+    # Display images
+    fig = plt.figure(dpi=300)
+
+    fig.add_subplot(2, 2, 1)
+    plt.imshow(im_A, cmap="gray")
+    plt.axis("off")
+    plt.title("Imagen A", fontsize=10)
+
+    fig.add_subplot(2, 2, 2)
+    plt.imshow(im_B, cmap="gray")
+    plt.title("Imagen B", fontsize=10)
+
+    fig.add_subplot(2, 2, 3)
+    plt.imshow(remainder, cmap="gray")
+    plt.title("Detección de movimiento", fontsize=10)
+
+    plt.savefig("../output/motion_detection_comparative.png")
+    plt.show()
+
+
+def motion_detection_thresholding_and_logical_operations():
+    """# Detección de movimiento con umbralización y operaciones lógicas (XOR operador)"""
+
+    # Load images
+    im_A = cv2.imread('../data/scr3.png', cv2.IMREAD_GRAYSCALE)  # gray scale
+    im_B = cv2.imread('../data/scr4.png', cv2.IMREAD_GRAYSCALE)  # gray scale
+
+    k = 0.5  # to combine 2 images
+    thr = 160  # umbral (0 - 255)
+
+    im_A[im_A <= thr] = 1
+    im_A[im_A > thr] = 0
+    im_B[im_B <= thr] = 1
+    im_B[im_B > thr] = 0
+
+    # Implements XOR operator
+    im_C = (k * im_A) + ((1 - k) * im_B)
+    im_C[im_C <= 0] = 0
+    im_C[im_C > 0] = 1
+
+    # Display image
+    fig = plt.figure(dpi=300)
+
+    fig.add_subplot(2, 2, 1)
+    plt.imshow(im_A, cmap="gray")
+    plt.axis("off")
+    plt.title("Imagen A", fontsize=10)
+
+    fig.add_subplot(2, 2, 2)
+    plt.imshow(im_B, cmap="gray")
+    plt.title("Imagen B", fontsize=10)
+
+    fig.add_subplot(2, 2, 3)
+    plt.imshow(im_C, cmap="gray")
+    plt.title("Detección de movimiento", fontsize=10)
+
+    plt.savefig("../output/motion_detection_thresholding_and_logical_operations_comparative.png")
+    plt.show()
+
+
+def composition_partial():
+    """# Composición de 2 imágenes, una imagen reducida en una esquina
+    Una de las imágenes, concretamente una versión reducida, estará en la esquina inferior derecha de la otra imagen"""
+
+    # Load images
+    im1 = Image.open('../data/Cameraman.png')
+    im2 = Image.open('../data/Rice.png')
+
+    base_width = 342  # set new size in horizontal to image 2
+    w_percent = (base_width / float(im2.size[0]))
+    h_size = int((float(im2.size[1]) * float(w_percent)))
+    im2 = im2.resize((base_width, h_size), Resampling.LANCZOS)  # scale image
+
+    width_im1, height_im1 = im1.size
+    width_im2, height_im2 = im2.size
+
+    # Save image combined
+    im1.paste(im2, (width_im1 - width_im2, height_im1 - height_im2), im2)  # set im2 in corner right down
+    im1.save('../data/Cameraman_Rice.png', quality=95)
+
+    # Load image combined
+    composition = cv2.imread('../data/Cameraman_Rice.png', cv2.IMREAD_GRAYSCALE)  # gray scale
+    # Display image
+    plt.imshow(composition, cmap="gray")
+    plt.colorbar()
+
+    plt.savefig("../output/Cameraman_Rice_composition_partial_comparative.png")
+    plt.show()
+
+
+def increase_brightness():
+    """# Brillo con operaciones aritméticas suma y multiplicación (Subir brillo)"""
+
+    # Load image
+    img_int = cv2.imread('../data/D1.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
+
+    scalar = 64  # Set brightness level
+    low_brightness_im = cv2.add(img_int, scalar)
+
+    # Display images
+    fig = plt.figure(dpi=300)
+
+    fig.add_subplot(1, 2, 1)
+    plt.imshow(img_int, cmap="gray")
+    plt.title("Imagen original", fontsize=10)
+
+    fig.add_subplot(1, 2, 2)
+    plt.imshow(low_brightness_im, cmap="gray")
+    plt.title("Imagen con mas brillo", fontsize=10)
+
+    plt.savefig("../output/increase_brightness_comparative.png")
     plt.show()
 
 
 if __name__ == '__main__':
     choose_opt()
 
-"""# Histograma para imagen en escala de grises"""
-
-# Load image
-img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
-
-
-# Histogram method
-def fn_histogram(input_im):
-    v_histogram = np.zeros((1, 256))
-    pixel_range = range(0, 256)
-
-    for pixel_value in pixel_range:
-        v_histogram[0, pixel_value] = (input_im == pixel_value).sum()
-
-    return v_histogram
-
-
-histogram_EG = fn_histogram(img_in)
-histogram_EG = list(histogram_EG.flatten())
-vals_pixel = np.arange(256)
-
-# Display diagram
-plt.bar(vals_pixel, histogram_EG, align='center', width=1)
-plt.ylabel('Valor - píxel')
-plt.ylabel('Frecuencia')
-plt.title('Histograma de imagen en escala de grises')
-plt.show()
-
-"""# Histograma para imagen en escala de colores"""
-
-# Load image
-img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_COLOR)  # color scale
-
-
-# Histogram method
-def fn_histogram(input_im):
-    v_histogram = np.zeros((1, 256))
-    pixel_range = range(0, 256)
-
-    for pixel_value in pixel_range:
-        v_histogram[0, pixel_value] = (input_im == pixel_value).sum()
-
-    return v_histogram
-
-
-# Red
-histogramRC = fn_histogram(img_in[:, :, 0])
-histogramRC = list(histogramRC.flatten())
-# Green
-histogramGC = fn_histogram(img_in[:, :, 1])
-histogramGC = list(histogramGC.flatten())
-# Blue
-histogramBC = fn_histogram(img_in[:, :, 2])
-histogramBC = list(histogramBC.flatten())
-
-vals_pixel = np.arange(256)
-
-# Display diagram
-fig, axs = plt.subplots(1, 3, figsize=(12, 4), sharey=True)
-axs[0].bar(vals_pixel, histogramRC, align='center', width=1)
-axs[1].bar(vals_pixel, histogramGC, align='center', width=1)
-axs[2].bar(vals_pixel, histogramBC, align='center', width=1)
-
-"""# Combinar 2 imágenes (Composición)"""
-
-# Load images
-A = cv2.imread('../data/Cameraman.png', cv2.IMREAD_GRAYSCALE)  # gray scale
-B = cv2.imread('../data/Rice.png', cv2.IMREAD_GRAYSCALE)  # gray scale
-
-A = A[0:1024, 0:1022]
-k = 0.5  # Set to combine 2 images
-C = (k * A) + ((1 - k) * B)
-
-# Display image
-imgplot_C = plt.imshow(C, cmap="gray")
-plt.colorbar()
-
-"""# Detección de movimiento"""
-
-# Load images
-im_A = cv2.imread('../data/sub_A.png', cv2.IMREAD_GRAYSCALE)  # gray scale
-im_B = cv2.imread('../data/sub_B.png', cv2.IMREAD_GRAYSCALE)  # gray scale
-
-remainder = im_A - im_B
-
-# Display images
-fig = plt.figure(dpi=300)
-
-fig.add_subplot(2, 2, 1)
-plt.imshow(im_A, cmap="gray")
-plt.axis("off")
-plt.title("Imagen A", fontsize=10)
-
-fig.add_subplot(2, 2, 2)
-plt.imshow(im_B, cmap="gray")
-plt.title("Imagen B", fontsize=10)
-
-fig.add_subplot(2, 2, 3)
-plt.imshow(remainder, cmap="gray")
-plt.title("Detección de movimiento", fontsize=10)
-
-"""# Detección de movimiento con umbralización y operaciones lógicas (XOR operador)"""
-
-# Load images
-im_A = cv2.imread('../data/scr3.png', cv2.IMREAD_GRAYSCALE)  # gray scale
-im_B = cv2.imread('../data/scr4.png', cv2.IMREAD_GRAYSCALE)  # gray scale
-
-k = 0.5  # to combine 2 images
-thr = 160  # umbral (0 - 255)
-
-im_A[im_A <= thr] = 1
-im_A[im_A > thr] = 0
-im_B[im_B <= thr] = 1
-im_B[im_B > thr] = 0
-
-# Implements XOR operator
-im_C = (k * im_A) + ((1 - k) * im_B)
-im_C[im_C <= 0] = 0
-im_C[im_C > 0] = 1
-
-# Display image
-fig = plt.figure(dpi=300)
-
-fig.add_subplot(2, 2, 1)
-plt.imshow(im_A, cmap="gray")
-plt.axis("off")
-plt.title("Imagen A", fontsize=10)
-
-fig.add_subplot(2, 2, 2)
-plt.imshow(im_B, cmap="gray")
-plt.title("Imagen B", fontsize=10)
-
-fig.add_subplot(2, 2, 3)
-plt.imshow(im_C, cmap="gray")
-plt.title("Detección de movimiento", fontsize=10)
-
-"""# Composición de 2 imágenes, una imagen reducida en una esquina
-Una de las imágenes, concretamente una versión reducida, estará en la esquina inferior derecha de la otra imagen
-"""
-
-# Load images
-im1 = Image.open('../data/Cameraman.png')
-im2 = Image.open('../data/Rice.png')
-
-base_width = 342  # set new size in horizontal to image 2
-w_percent = (base_width / float(im2.size[0]))
-h_size = int((float(im2.size[1]) * float(w_percent)))
-im2 = im2.resize((base_width, h_size), Image.ANTIALIAS)  # scale image
-
-width_im1, height_im1 = im1.size
-width_im2, height_im2 = im2.size
-
-# Save image combined
-im1.paste(im2, (width_im1 - width_im2, height_im1 - height_im2), im2)  # set im2 in corner right down
-im1.save('../data/Cameraman_Rice.png', quality=95)
-
-# Load image combined
-composition = cv2.imread('../data/Cameraman_Rice.png', cv2.IMREAD_GRAYSCALE)  # gray scale
-# Display image
-img_plot_GG = plt.imshow(composition, cmap="gray")
-plt.colorbar()
-
-"""# Brillo con operaciones aritméticas suma y multiplicación (Subir brillo)"""
-
-# Load image
-img_int = cv2.imread('../data/D1.jpg', cv2.IMREAD_GRAYSCALE)  # gray scale
-
-scalar = 64  # Set brightness level
-low_brightness_im = cv2.add(img_int, scalar)
-minimo = low_brightness_im.min()  # TODO
-
-# Display images
-fig = plt.figure(dpi=300)
-
-fig.add_subplot(1, 2, 1)
-plt.imshow(img_int, cmap="gray")
-plt.title("Imagen original", fontsize=10)
-
-fig.add_subplot(1, 2, 2)
-plt.imshow(low_brightness_im, cmap="gray")
-plt.title("Imagen con mas brillo", fontsize=10)
 
 """# Brillo con operaciones aritméticas remainder y división (Bajar brillo)"""
 
