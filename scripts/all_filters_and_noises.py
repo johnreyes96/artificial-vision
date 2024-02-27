@@ -219,7 +219,6 @@ def gaussiano_noise():
 def unsharp_masking():
     """ Procesamiento con filtro promedio (unsharp masking) """
     img_in = cv2.imread('../data/HCColor2.jpg', cv2.IMREAD_GRAYSCALE)
-    nf, nc = img_in.shape
     Fx = img_in.astype(np.float64)
 
     k_size = 21
@@ -459,11 +458,11 @@ def gradient_with_2D_convolution_with_high_pass_filter():
     plt.show()
 
 
-def fn_unsharp_masking(R, k, k_size):
+def fn_unsharp_masking(r, k, k_size):
     kernel = (1 / (k_size * k_size)) * np.ones([k_size, k_size])
-    f_smooth = signal.convolve2d(R, kernel, boundary='symm', mode='same')
-    Gx = R - f_smooth
-    f_sharp = R + (k * Gx)
+    f_smooth = signal.convolve2d(r, kernel, boundary='symm', mode='same')
+    Gx = r - f_smooth
+    f_sharp = r + (k * Gx)
     f_sharp.astype(np.uint8)
     return f_sharp
 
@@ -637,9 +636,9 @@ def composition_partial():
     im1.save('../data/Cameraman_Rice.png', quality=95)
 
     # Load image combined
-    composition = cv2.imread('../data/Cameraman_Rice.png', cv2.IMREAD_GRAYSCALE)
+    img_composition = cv2.imread('../data/Cameraman_Rice.png', cv2.IMREAD_GRAYSCALE)
 
-    plt.imshow(composition, cmap="gray")
+    plt.imshow(img_composition, cmap="gray")
     plt.colorbar()
 
     plt.savefig("../output/Cameraman_Rice_composition_partial_comparative.png")
