@@ -463,17 +463,17 @@ def fn_unsharp_masking(r, k, k_size):
     f_smooth = signal.convolve2d(r, kernel, boundary='symm', mode='same')
     Gx = r - f_smooth
     f_sharp = r + (k * Gx)
-    f_sharp.astype(np.uint8)
+    f_sharp = np.clip(f_sharp, 0, 255)  # Asegura que los valores estén en el rango [0, 255]
+    f_sharp = f_sharp.astype(np.uint8)
     return f_sharp
 
 
-def application_unsharp_masking():  # TODO: adjust visualization images
+def application_unsharp_masking():
     """ Aplicación unsharp masking """
     img_in = cv2.imread('../data/ratsmoothmuscle2.jpg', cv2.IMREAD_COLOR)
-    img_in = cv2.cvtColor(img_in, cv2.COLOR_BGR2RGB)
+    img_original = img_in.copy()
+    img_original = cv2.cvtColor(img_original, cv2.COLOR_BGR2RGB)
     img_in = img_in.astype(np.float64)
-    plt.imshow(img_in, cmap="gray", vmin=0, vmax=255)
-    plt.show()
 
     R = img_in[:, :, 0]
     G = img_in[:, :, 1]
@@ -483,12 +483,19 @@ def application_unsharp_masking():  # TODO: adjust visualization images
     R_UM = fn_unsharp_masking(R, k, filter_size)
     G_UM = fn_unsharp_masking(G, k, filter_size)
     B_UM = fn_unsharp_masking(B, k, filter_size)
-    rgb_UM = (np.dstack((R_UM, G_UM, B_UM))).astype(np.float64)
+    rgb_UM = np.dstack((R_UM, G_UM, B_UM)).astype(np.uint8)
+    rgb_UM = cv2.cvtColor(rgb_UM, cv2.COLOR_BGR2RGB)
 
-    mosaic = cv2.hconcat((img_in, rgb_UM))
-    plt.imshow(mosaic.astype(np.uint8), cmap="gray", vmin=0, vmax=255)
+    fig = plt.figure(dpi=300)
+    fig.add_subplot(1, 2, 1)
+    plt.imshow(img_original, cmap="gray")
+    plt.title("Imagen original", fontsize=10)
 
-    plt.savefig("../output/ratsmoothmuscle2_application_unsharp_masking_comparative2.png")
+    fig.add_subplot(1, 2, 2)
+    plt.imshow(rgb_UM, cmap="gray")
+    plt.title("Aplicación unsharp masking", fontsize=10)
+
+    plt.savefig("../output/ratsmoothmuscle2_application_unsharp_masking_comparative.png")
     plt.show()
 
 
