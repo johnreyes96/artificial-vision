@@ -20,7 +20,7 @@ img_in = cv2.cvtColor(img_in, cv2.COLOR_BGR2RGB)
 # Aquí separa las componentes de color en cada uno de los canales RGB
 imagenEnt = imagen.astype(np.float64)
 plt.imshow(img_in, cmap="gray")
-# plt.show()
+plt.show()
 
 # Red
 R = imagenEnt[:, :, 0]
@@ -32,7 +32,7 @@ B = imagenEnt[:, :, 2]
 colorComps = cv2.hconcat((R, G, B))  # Para ver las componentes de color por separado.
 plt.imshow(colorComps, cmap="gray")
 plt.savefig("../../output/celulas_components.png")
-# plt.show()
+plt.show()
 
 # Umbralización
 # Green
@@ -53,7 +53,7 @@ resultado = np.dstack((R, G, B)).astype(np.uint8)
 resultado = cv2.cvtColor(resultado, cv2.COLOR_BGR2RGB)
 plt.imshow(resultado, cmap="gray")
 plt.savefig("../../output/celulas_BGR.png")
-# plt.show()
+plt.show()
 
 
 """
@@ -92,7 +92,7 @@ resultado = np.dstack((R, G, B)).astype(np.uint8)
 resultado = cv2.cvtColor(resultado, cv2.COLOR_BGR2RGB)
 plt.imshow(resultado, cmap="gray")
 plt.savefig("../../output/celulas_BGR_2.png")
-# plt.show()
+plt.show()
 
 
 """
@@ -101,7 +101,7 @@ Ejercicio de los bananos
 """
 imagen = cv2.imread('../../data/bananos.png', cv2.IMREAD_COLOR)
 plt.imshow(imagen, cmap="gray")
-# plt.show()
+plt.show()
 imagen = cv2.cvtColor(imagen, cv2.COLOR_BGR2RGB)
 
 # Aquí separa las componentes de color en cada uno de los canales RGB
@@ -117,7 +117,7 @@ B = imagenEnt[:, :, 2]
 colorCompsRGB = cv2.hconcat((R, G, B))  # Para ver las componentes de color por separado.
 plt.imshow(colorCompsRGB, cmap="gray")
 plt.savefig("../../output/bananos_components.png")
-# plt.show()
+plt.show()
 
 # Umbralización
 mask = R
@@ -139,7 +139,7 @@ resultado = np.dstack((R, G, B)).astype(np.uint8)
 resultado = cv2.cvtColor(resultado, cv2.COLOR_BGR2RGB)
 plt.imshow(resultado, cmap="gray")
 plt.savefig("../../output/bananos_RGB.png")
-# plt.show()
+plt.show()
 
 
 """
@@ -149,7 +149,7 @@ Ejercicio de los endosomas
 imagen = cv2.imread('../../data/endosomas.jpg', cv2.IMREAD_COLOR)
 print("Imagen original")
 plt.imshow(imagen, cmap="gray")
-# plt.show()
+plt.show()
 imagen = cv2.cvtColor(imagen, cv2.COLOR_BGR2RGB)
 
 # Aquí separa las componentes de color en cada uno de los canales RGB
@@ -167,7 +167,7 @@ B = endosoma[:, :, 2]
 colorCompsRGB = cv2.hconcat((R, G, B))  # Para ver las componentes de color por separado.
 plt.imshow(colorCompsRGB, cmap="gray")
 plt.savefig("../../output/endosomas_components.jpg")
-# plt.show()
+plt.show()
 
 # Umbralización
 # Green
@@ -184,7 +184,7 @@ print("\n\nEndosomas")
 resultado = np.dstack((R, G, B)).astype(np.uint8)
 plt.imshow(resultado, cmap="gray")
 plt.savefig("../../output/endosomas_endosomas_RGB.jpg")
-# plt.show()
+plt.show()
 
 # Endosomas
 core = np.copy(imagenEnt)
@@ -210,7 +210,7 @@ resultado = np.dstack((R, G, B)).astype(np.uint8)
 resultado = cv2.cvtColor(resultado, cv2.COLOR_BGR2RGB)
 plt.imshow(resultado, cmap="gray")
 plt.savefig("../../output/endosomas_nucleos_celulares_RGB.jpg")
-# plt.show()
+plt.show()
 
 # celulas
 celulas = np.copy(imagenEnt)
@@ -239,7 +239,7 @@ resultado = np.dstack((R, G, B)).astype(np.uint8)
 resultado = cv2.cvtColor(resultado, cv2.COLOR_BGR2RGB)
 plt.imshow(resultado, cmap="gray")
 plt.savefig("../../output/endosomas_celulas_RGB.jpg")
-# plt.show()
+plt.show()
 
 
 """
@@ -248,7 +248,7 @@ Medula espinal
 """
 imagen = cv2.imread('../../data/medulaespinal.jpg', cv2.IMREAD_COLOR)
 plt.imshow(imagen, cmap="gray")
-# plt.show()
+plt.show()
 imagen = cv2.cvtColor(imagen, cv2.COLOR_BGR2RGB)
 
 # Aquí separa las componentes de color en cada uno de los canales RGB
@@ -266,7 +266,7 @@ B = endosoma[:, :, 2]
 colorCompsRGB = cv2.hconcat((R, G, B))  # Para ver las componentes de color por separado.
 plt.imshow(colorCompsRGB, cmap="gray")
 plt.savefig("../../output/medulaespinal_components.jpg")
-# plt.show()
+plt.show()
 
 # Umbralización
 mask = G
@@ -287,7 +287,7 @@ resultado = np.dstack((R, G, B)).astype(np.uint8)
 resultado = cv2.cvtColor(resultado, cv2.COLOR_BGR2RGB)
 plt.imshow(resultado, cmap="gray")
 plt.savefig("../../output/medulaespinal_celulas_RGB.jpg")
-# plt.show()
+plt.show()
 
 # aglomeracion en las celulas
 endosoma = np.copy(imagenEnt)
@@ -316,37 +316,35 @@ resultado = np.dstack((R, G, B)).astype(np.uint8)
 resultado = cv2.cvtColor(resultado, cv2.COLOR_BGR2RGB)
 plt.imshow(resultado, cmap="gray")
 plt.savefig("../../output/medulaespinal_aglomeracion_celulas_RGB.jpg")
-# plt.show()
+plt.show()
 
 
 """
 HSV
 Ejercicio Galletas
 """
-imagen = cv2.imread('../../data/galletas.jpg', cv2.IMREAD_COLOR)
-imagen = cv2.cvtColor(imagen, cv2.COLOR_RGB2HSV)
+img = cv2.imread('../../data/galletas.jpg', cv2.IMREAD_COLOR)
+img = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+cv2.imshow("Imagen en HSV", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+cv2.imwrite('../../output/galletas_HSV.jpg', img)
 
 # Aquí separa las componentes de color en cada uno de los canales HSV
-imagenEnt = imagen.astype(np.float64)
-plt.imshow(imagenEnt, cmap="gray")
-# plt.show()  # TODO: improvement visualization
-
-img = label(imagen)
-plt.imshow(img, cmap="gray")
-# plt.show()  # TODO: improvement visualization
+img_in = img.astype(np.float64)
 
 # Red
-R = imagenEnt[:, :, 0]
+R = img_in[:, :, 0]
 R[R <= 50] = 255
 # Green
-G = imagenEnt[:, :, 1]
+G = img_in[:, :, 1]
 # Blue
-B = imagenEnt[:, :, 2]
+B = img_in[:, :, 2]
 
 colorCompsHSV = cv2.hconcat((R, G, B))  # Para ver las componentes de color por separado.
 plt.imshow(colorCompsHSV, cmap="gray")
-plt.savefig("../../output/galletas_components.jpg")
-# plt.show()
+plt.savefig("../../output/galletas_components_HSV.jpg")
+plt.show()
 
 # Umbralización
 # Red
@@ -367,34 +365,35 @@ mask[R >= umbral] = 255
 resultado = np.dstack((R, G, B)).astype(np.uint8)
 resultado = cv2.cvtColor(resultado, cv2.COLOR_BGR2RGB)
 plt.imshow(resultado, cmap="gray")
-plt.savefig("../../output/galletas_HSV.jpg")
-# plt.show()
+plt.savefig("../../output/galletas_HSV_2.jpg")
+plt.show()
 
 
 """
 HSV
 Ejercicio Galletas sin migajas
 """
-imagen = cv2.imread('../../data/galletas.jpg', cv2.IMREAD_COLOR)
-# imagen = cv2.cvtColor(imagen, cv2.COLOR_BGR2RGB)
-imagen = cv2.cvtColor(imagen, cv2.COLOR_RGB2HSV)
+img = cv2.imread('../../data/galletas.jpg', cv2.IMREAD_COLOR)
+img = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+cv2.imshow("Imagen en HSV", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+cv2.imwrite('../../output/galletas_crumbless_HSV.jpg', img)
 
 # Aquí separa las componentes de color en cada uno de los canales RGB
-imagenEnt = imagen.astype(np.float64)
-plt.imshow(imagenEnt, cmap="gray")
-# plt.show()  # TODO: improvement visualization
+img_in = img.astype(np.float64)
 
 # Red
-R = imagenEnt[:, :, 0]
+R = img_in[:, :, 0]
 # Green
-G = imagenEnt[:, :, 1]
+G = img_in[:, :, 1]
 # Blue
-B = imagenEnt[:, :, 2]
+B = img_in[:, :, 2]
 
 colorCompsHSV = cv2.hconcat((R, G, B))  # Para ver las componentes de color por separado.
 plt.imshow(colorCompsHSV, cmap="gray")
-plt.savefig("../../output/galletas_components_2.jpg")
-# plt.show()
+plt.savefig("../../output/galletas_components_HSV_2.jpg")
+plt.show()
 
 # Umbralización
 # Blue
@@ -417,11 +416,11 @@ mask = R
 mask[G < 255] = 0
 
 # Mostrar resultado
-resultado = np.dstack((R, G, B)).astype(np.uint8)
-resultado = cv2.cvtColor(resultado, cv2.COLOR_BGR2RGB)
-plt.imshow(resultado, cmap="gray")
-plt.savefig("../../output/galletas_HSV_2.jpg")
-# plt.show()
+result = np.dstack((R, G, B)).astype(np.uint8)
+result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
+plt.imshow(result, cmap="gray")
+plt.savefig("../../output/galletas_crumbless_HSV_2.jpg")
+plt.show()
 
 
 """
