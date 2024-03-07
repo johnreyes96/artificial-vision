@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 
-
 """
 BGR
 Ejercicio células
@@ -429,23 +428,24 @@ plt.savefig("../../output/galletas_HSV_2.jpg")
 LAB
 Mostrar canales en LAB
 """
-imagen = cv2.imread('../../data/galletas.jpg', cv2.IMREAD_COLOR)
-# imagen = cv2.cvtColor(imagen, cv2.COLOR_BGR2RGB)
-imagen = cv2.cvtColor(imagen, cv2.COLOR_BGR2LAB)
+img = cv2.imread('../../data/galletas.jpg', cv2.IMREAD_COLOR)
+img = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+cv2.imshow("Imagen en LAB", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+cv2.imwrite('../../output/galletas_LAB.jpg', img)
 
 # Aquí separa las componentes de color en cada uno de los canales RGB
-imagenEnt = imagen.astype(np.float64)
-plt.imshow(imagenEnt, cmap="gray")
-plt.show()  # TODO: improvement visualization
+img_in = img.astype(np.float64)
 
 # Red
-R = imagenEnt[:, :, 0]
+R = img_in[:, :, 0]
 # Green
-G = imagenEnt[:, :, 1]
+G = img_in[:, :, 1]
 # Blue
-B = imagenEnt[:, :, 2]
+B = img_in[:, :, 2]
 
-colorCompsHSV = cv2.hconcat((R, G, B))  # Para ver las componentes de color por separado.
-plt.imshow(colorCompsHSV, cmap="gray")
-plt.savefig("../../output/galletas_components_3.jpg")
+colorCompsLAB = cv2.hconcat((R, G, B))  # Para ver las componentes de color por separado.
+plt.imshow(colorCompsLAB, cmap="gray")
+plt.savefig("../../output/galletas_components_LAB.jpg")
 plt.show()
